@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!--- 定义 bean 对应的类 -->
+  <bean id ="quartzJob" class ="com.tyunsoft.base.scheduler.QuartzJob"></bean>
+
+  <!-- 定义任务调用的对象和方法 -->
+  <bean id ="jobTask" class ="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name ="targetObject">
+      <ref bean ="quartzJob"/>
+    </property>
+    <property name ="targetMethod">
+      <value>run</value>
+    </property>
+  </bean>
+
+  <!-- 定义任务触发时间 -->
+  <bean id ="runTask" class ="org.springframework.scheduling.quartz.CronTriggerBean">
+    <property name ="jobDetail">
+      <ref bean ="jobTask"/>
+    </property>
+    <property name ="cronExpression">
+      <value>0/5 * * * * ?</value>
+    </property>
+  </bean>
+
+  <!-- 总管理类  如果将 lazy-init='false' 那么容器启动就会执行调度程序  -->
+  <bean id ="schedulerFactory" lazy-init ="false" autowire ="no" class ="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+    <property name ="triggers">
+      <list>
+        <ref bean ="runTask"/>
+      </list>
+    </property>
+  </bean>
+</beans>

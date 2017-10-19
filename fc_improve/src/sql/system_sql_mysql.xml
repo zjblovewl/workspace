@@ -1,0 +1,661 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<sql id="sql_user_login" description="用户登录SQL语句">
+   	  <![CDATA[
+   	  	select tu.user_id,tu.user_name,tu.sex,tu.dept_id,td.dept_level,td.dept_name  
+   	  	  from t_fs_user tu 
+   	 left join t_fs_dept td on tu.dept_id = td.dept_id  
+   	  	 where tu.user_id=? and tu.user_pswd = ? and tu.is_on_job='0' and tu.is_deleted='0'
+   	  ]]>
+	</sql>
+
+
+	<sql id="sql_query_role_name_for_exist" description="新增角色时检查角色名称是否存在">
+   	  <![CDATA[
+   	  	select count(0) 
+   	  	  from t_fs_role 
+   	  	 where role_name=? and (role_id != ? or '' = ?) and is_deleted='0'
+   	  ]]>
+	</sql>
+
+	<sql id="sql_add_role" description="增加角色信息">
+   	  <![CDATA[
+   	  	insert into t_fs_role(role_id,role_name,role_remark,is_deleted) 
+   	  	values(?,?,?,'0')
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_edit_role" description="修改角色信息">
+   	  <![CDATA[
+   	  	update t_fs_role set role_name = ?,role_remark = ? where role_id = ?
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_role" description="根据角色编码查询角色信息">
+   	  <![CDATA[
+   	  	select role_id,role_name,role_remark from t_fs_role where role_id = ?
+   	  ]]>
+	</sql>
+
+	<sql id="sql_search_roles" description="查询角色信息列表">
+   	  <![CDATA[
+   	  	 select role_id,role_name,role_remark
+   	  	   from t_fs_role
+   	  	  where is_deleted='0'
+   	  ]]>
+	</sql>
+
+	<sql id="sql_delete_role" description="逻辑删除角色信息">
+   	  <![CDATA[
+   	  	update t_fs_role 
+   	  	   set is_deleted='1' 
+   	  	 where role_id = ? 
+   	  ]]>
+	</sql>
+
+	<sql id="sql_search_menus" description="查询菜单信息列表">
+		<![CDATA[
+   	  		select menu_id,menu_name,menu_order,menu_icon,p_menu_id,menu_link 
+			  from t_fs_menu  
+		  order by p_menu_id,menu_order
+   	  	]]>
+	</sql>
+
+	<sql id="sql_search_functions" description="查询菜单信息列表">
+		<![CDATA[
+   	  		select menu_id,fun_id,fun_name,fun_order 
+			  from t_fs_menu_function
+		  order by menu_id,fun_order
+   	  	]]>
+	</sql>
+
+	<sql id="sql_delete_role_menu_functions" description="删除角色的权限信息">
+		<![CDATA[
+   	  		delete from t_fs_role_menu_function where role_id = ?
+   	  	]]>
+	</sql>
+	
+	<sql id="sql_delete_menu_roles" description="删除菜单的角色信息">
+		<![CDATA[
+			delete from t_fs_role_menu where menu_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_delete_role_menu_functions" description="删除角色所分配的菜单所有操作功能">
+		<![CDATA[
+			delete from t_fs_role_menu_function where menu_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_delete_role_menus" description="删除角色的菜单信息">
+		<![CDATA[
+   	  		delete from t_fs_role_menu where role_id = ?
+   	  	]]>
+	</sql>
+
+	<sql id="sql_set_role_menu_functions" description="给角色进行操作权限分配">
+		<![CDATA[
+			insert into t_fs_role_menu_function(role_id,menu_id,fun_id) values(?,?,?)
+		]]>
+	</sql>
+	
+	<sql id="sql_set_role_menus" description="给角色进行菜单权限分配">
+		<![CDATA[
+			insert into t_fs_role_menu(role_id,menu_id) values(?,?)
+		]]>
+	</sql>
+
+	<sql id="sql_query_menus_by_roleid" description="根据角色编码角色所拥有的菜单权限">
+		<![CDATA[
+			select role_id,menu_id
+			 from t_fs_role_menu 
+			where role_id = ?
+		]]>
+	</sql>
+
+	<sql id="sql_query_functions_by_roleid" description="根据角色编码查询所有功能列表">
+		<![CDATA[
+			select menu_id,fun_id from t_fs_role_menu_function 
+			 where role_id = ? 
+		  order by menu_id
+		]]>
+	</sql>
+
+	<sql id="sql_search_depts" description="查询部门信息">
+	   	  <![CDATA[
+	   	  	select dept_id,dept_name,dept_short_name,dept_phone,dept_fax,dept_address,
+	   	  			p_dept_id,dept_leader,dept_level,dept_remark
+	   	  	  from t_fs_dept
+	   	  order by dept_level,create_date	  
+	   	  ]]>
+	</sql>
+
+	<sql id="sql_query_children_depts" description="查询二级部门">
+			<![CDATA[
+				select dept_id,dept_name
+				  from t_fs_dept
+	             where dept_level = 2
+	          order by create_date    
+			]]>
+	</sql>
+
+	<sql id="sql_query_dept" description="根据部门编码查询部门信息">
+		 <![CDATA[
+		   select md.dept_id,md.dept_name,md.dept_short_name,md.dept_phone,md.dept_fax,md.dept_address,   
+		          md.p_dept_id,fd.dept_name p_dept_name,md.dept_leader,md.dept_remark,md.dept_level
+		     from t_fs_dept md  
+		left join t_fs_dept fd on md.p_dept_id = fd.dept_id
+		    where md.dept_id = ? 
+		 ]]>
+	</sql>
+	
+	<sql id="sql_add_dept" description="增加部门">
+   	  <![CDATA[
+   	  	insert into t_fs_dept(dept_id,dept_name,dept_short_name,dept_phone,dept_fax,dept_address
+   	  						,p_dept_id,dept_leader,dept_level,dept_remark,creator,create_date)
+   	  	values(?,?,?,?,?,?,?,?,?,?,?,?)					
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_edit_dept" description="修改部门信息">
+   	  <![CDATA[
+   	  	update t_fs_dept 
+   	  	   set dept_name=?,dept_short_name=?,dept_phone=?,dept_fax=?,dept_address=?,dept_leader=?,
+   	  	       dept_remark=?
+   	  	 where dept_id=?    				
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_delete_dept" description="删除选中的部门">
+   	  <![CDATA[
+   	  	delete from t_fs_dept where dept_id = ?			
+   	  ]]>
+	</sql>
+	<sql id="sql_search_users_count" description="查询符合条件的用户总记录数">
+		<![CDATA[
+			select count(0)
+			  from t_fs_user
+			 where (dept_id = ? or '0'=?)
+			   and user_id like ? 
+			   and user_name like ? 
+			   and town like ?
+			   and village like ?
+			   and is_deleted='0'
+		]]>
+	</sql>
+	<sql id="sql_search_users" description="查询用户列表">
+		<![CDATA[
+			   select u.user_id,u.user_name,u.sex,d.dept_name,td.duty_name,u.is_on_job,u.user_phone,u.town,u.village
+			     from t_fs_user u  
+			left join t_fs_dept d on u.dept_id = d.dept_id
+			left join t_fs_duty td on u.duty_id = td.duty_id
+			    where (u.dept_id = ? or '0'=?)
+			      and u.user_id like ? 
+			      and u.user_name like ?
+			      and town like ?
+			   	  and village like ?
+			      and u.is_deleted='0' order by u.create_date
+		]]>
+	</sql>
+	<sql id="sql_query_user" description="根据用户编码查询用户">
+		<![CDATA[
+			select user_id,user_name,sex,dept_id,duty_id,is_on_job,user_phone,town,village
+			  from t_fs_user
+			 where user_id = ? 
+		]]>
+	</sql>
+	
+	<sql id="sql_delete_users" description="删除用户">
+		<![CDATA[
+			update t_fs_user set is_deleted='1' where user_id in (:userids)
+		]]>
+	</sql>
+	
+	<sql id="sql_update_user_dept" description="将所选择的部门的用户部门编码置为空">
+		<![CDATA[
+			update t_fs_user set dept_id = '' where dept_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_reset_pswd_users" description="重置用户密码">
+		<![CDATA[
+			update t_fs_user set user_pswd = ? where user_id in (:userids)
+		]]>
+	</sql>
+	
+	<sql id="sql_insert_user" description="增加用户">
+		<![CDATA[
+			insert into t_fs_user(user_id,user_name,sex,dept_id,duty_id,user_pswd,creator,create_date,is_on_job,is_deleted,user_phone,town,village)
+			     values(?,?,?,?,?,?,?,?,'0','0',?,?,?)
+		]]>
+	</sql>
+	
+	<sql id="sql_update_user" description="更新用户">
+		<![CDATA[
+			update t_fs_user set user_name=?,sex=?,dept_id=?,duty_id=?,is_on_job=?,user_phone=?,town=?,village = ?
+			 where user_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_query_user_roles" description="查询用户对应角色">
+		<![CDATA[
+			select tr.user_id,tr.role_id,t.role_name 
+			  from t_fs_user_role tr
+		 left join t_fs_role t on t.role_id = tr.role_id
+			 where tr.user_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_delete_user_roles" description="删除用户所对应的角色">
+		<![CDATA[
+			delete from t_fs_user_role where user_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_delete_role_users_rel" description="删除角色与用户的关联关系">
+		<![CDATA[
+			delete from t_fs_user_role where role_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_insert_user_roles" description="增加用户角色">
+		<![CDATA[
+			insert into t_fs_user_role(user_id,role_id) values(?,?)
+		]]>
+	</sql>
+	
+	<sql id="sql_search_top_menus" description="查询顶级菜单">
+		<![CDATA[
+			select menu_id,menu_name,p_menu_id,menu_icon,menu_order 
+			  from t_fs_menu
+			 where p_menu_id='0'
+		  order by menu_order
+		]]>
+	</sql>
+	
+	<sql id="sql_order_menu" description="菜单排序">
+		<![CDATA[
+			update t_fs_menu set menu_order = ? where menu_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_search_children_menus" description="根据菜单编码查询子菜单">
+		<![CDATA[
+			select menu_id,menu_name,p_menu_id,menu_icon,menu_order 
+			  from t_fs_menu
+			 where p_menu_id = ?
+		  order by menu_order
+		]]>
+	</sql>
+	
+	<sql id="sql_query_menu" description="根据菜单编码查询菜单">
+		<![CDATA[
+			select menu_id,menu_name,p_menu_id,menu_icon,menu_link 
+			  from t_fs_menu
+			 where menu_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_search_user_menus" description="查询用户所拥有的菜单权限">
+		<![CDATA[
+			   select distinct trm.menu_id,tm.menu_name,tm.p_menu_id,tm.menu_link,tm.menu_icon
+			     from t_fs_role_menu trm    
+			left join t_fs_menu tm on trm.menu_id = tm.menu_id
+			    where trm.role_id in (select tr.role_id from t_fs_user_role tr where tr.user_id = ?)    
+			 order by tm.p_menu_id,tm.menu_order
+		]]>
+	</sql>
+	
+	<sql id="sql_delete_menu" description="删除菜单信息">
+		<![CDATA[
+			delete from t_fs_menu where menu_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_update_menu" description="编辑菜单信息">
+		<![CDATA[
+			update t_fs_menu
+			   set menu_name = ?,menu_icon = ?,menu_link = ?,p_menu_id = ?
+			where menu_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_query_menu_name_exist" description="根据条件查询是否有同名菜单">
+		<![CDATA[
+			select count(0) from t_fs_menu where p_menu_id = ? and menu_name = ? and (menu_id != ? or '0' = ?)
+		]]>
+	</sql>
+	
+	<sql id="sql_query_max_order" description="根据上级目录查询当前目录下最大的排序号">
+		<![CDATA[
+			select max(menu_order) from t_fs_menu where p_menu_id = ? 
+		]]>
+	</sql>
+	
+	<sql id="sql_add_menu" description="新增菜单信息">
+		<![CDATA[
+			insert into t_fs_menu(menu_id,menu_name,menu_order,menu_icon,p_menu_id,menu_link) values(?,?,?,?,?,?) 
+		]]>
+	</sql>
+	
+	<sql id="sql_query_user_menu_functions" description="查询某个用户的所有菜单操作权">
+		<![CDATA[
+			select distinct mf.menu_id,mf.fun_id,mf.fun_name
+			  from t_fs_role_menu_function rmf
+			left join t_fs_menu_function mf on rmf.menu_id = mf.menu_id  and rmf.fun_id = mf.fun_id
+			where rmf.role_id in (select role_id from t_fs_user_role where user_id = ?)
+			order by mf.menu_id,mf.fun_order
+		]]>
+	</sql>
+	
+	<sql id="sql_search_menu_functions" description="根据菜单编码查询菜单下的功能">
+		<![CDATA[
+		   select fun_id,fun_name,fun_order,fun_link
+		    from t_fs_menu_function 
+		   where menu_id=? 
+		order by fun_order
+		]]>
+	</sql>
+	
+	<sql id="sql_delete_menu_functions" description="根据菜单编码删除菜单的操作功能">
+		<![CDATA[
+			delete from t_fs_menu_function where menu_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_insert_menu_functions" description="新增菜单的操作功能信息">
+		<![CDATA[
+			insert into t_fs_menu_function(menu_id,fun_id,fun_name,fun_order,fun_link) values(?,?,?,?,?)
+		]]>
+	</sql>
+	
+	<sql id="sql_delete_dutys" description="删除职务信息">
+   	  <![CDATA[
+   	  	delete from t_fs_duty where duty_id in (:dutyids)
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_insert_duty" description="新增职务信息">
+		<![CDATA[
+			insert into t_fs_duty(duty_id,duty_name,duty_desc) values(?,?,?)
+		]]>
+	</sql>
+	
+	<sql id="sql_query_exist_name" description="查询职务名称是否已经存在">
+		<![CDATA[
+			select count(0) from t_fs_duty where duty_name = ? and (duty_id != ? or '-1' = ?)
+		]]>
+	</sql>
+	
+	<sql id="sql_search_list" description="查询职务信息列表数据">
+		<![CDATA[
+			select duty_id,duty_name,duty_desc from t_fs_duty
+		]]>
+	</sql>
+	
+	<sql id="sql_query_duty" description="根据职务编码查询职务信息">
+		<![CDATA[
+			select duty_id,duty_name,duty_desc from t_fs_duty where duty_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_update_duty" description="更新职务信息">
+		<![CDATA[
+			update t_fs_duty set duty_name = ?,duty_desc = ? where duty_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_update_app_location" description="更新用户的应用在桌面上的位置">
+	    <![CDATA[
+	    	update t_fs_user_app set app_column = ? , app_row = ? where app_id = ? and user_id = ?
+	    ]]>
+	</sql>
+	
+	<sql id="sql_delete_user_app" description="删除用户应用关联关系">
+   	  <![CDATA[
+   	  	    delete from t_fs_user_app where app_id = ?
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_delete_role_app" description="删除角色应用关联关系">
+   	  <![CDATA[
+			delete from t_fs_app_role where app_id = ?   	  
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_delete_app" description="删除应用信息">
+   	  <![CDATA[
+			delete from t_fs_app where app_id = ?   	  
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_app_name_exist" description="查询应用名称是否存在">
+   	  <![CDATA[
+			select count(0) from t_fs_app where (app_id != ? or '-1' = ?) and app_name = ?
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_insert_app" description="增加应用信息">
+   	  <![CDATA[
+			insert into t_fs_app(app_id,app_name,app_link,app_height,app_desc,app_is_small,app_icon,app_creator,app_create_date)
+		    values(?,?,?,?,?,?,?,?,?)
+   	  ]]>
+   	</sql>
+   	  
+   	<sql id="sql_update_app" description="更新应用信息">
+   	  <![CDATA[
+			update t_fs_app
+			   set app_name = ?,app_link=?,app_height=?,app_desc=?,app_is_small=?,
+			       app_icon=? 
+			 where app_id = ?       
+   	  ]]>
+	</sql>
+	
+	
+	<sql id="sql_query_app" description="根据应用编码查询应用">
+   	  <![CDATA[
+			select app_id,app_name,app_link,app_height,app_desc,app_is_small,app_icon,app_creator,app_create_date
+			  from t_fs_app
+			 where app_id = ?       
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_search_app_count" description="查询应用总记录数">
+   	  <![CDATA[
+			select count(0)
+			  from t_fs_app
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_search_app" description="查询应用记录,分页已经使用java进行分页">
+   	  <![CDATA[
+			select app_id,app_name,app_link,app_height,app_desc,app_is_small,app_icon,app_creator,app_create_date
+			  from t_fs_app
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_search_app_to_setter_count" description="根据角色编码查询待授权应用分页信息">
+   	  <![CDATA[
+			select count(0)
+  			  from t_fs_app ta 
+  			 where ta.app_id not in (select app_id from t_fs_app_role where role_id = ?) 
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_search_app_to_setter_list" description="根据角色编码查询待授权应用分页信息">
+   	  <![CDATA[
+			select ta.app_id,ta.app_name,ta.app_desc
+  			  from t_fs_app ta 
+  			 where ta.app_id not in (select app_id from t_fs_app_role where role_id = ?) 
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_search_app_from_setter_count" description="根据角色编码查询已授权应用分页信息">
+   	  <![CDATA[
+   	  		select count(0)
+   	  		  from t_fs_app_role
+   	  		 where role_id = ?  
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_search_app_from_setter_list" description="根据角色编码查询已授权应用分页信息">
+   	  <![CDATA[
+   	  		select ta.app_id,ta.app_name,ta.app_desc
+   	  		  from t_fs_app_role tr 
+   	  	 left join t_fs_app ta on tr.app_id = ta.app_id
+   	  	     where tr.role_id = ? 
+   	  ]]>
+	</sql>
+	
+	<sql id="insert_app_role" description="新增应用角色信息">
+   	  <![CDATA[
+   	  	insert into t_fs_app_role(app_id,role_id) values(?,?) 
+   	  ]]>
+	</sql>
+	
+	<sql id="delete_app_role" description="删除应用角色信息">
+   	  <![CDATA[
+   	  	delete from t_fs_app_role where app_id = ? and role_id = ? 
+   	  ]]>
+	</sql>
+	
+	<sql id="query_user_apps" description="根据用户编码查询用户的应用信息">
+   	  <![CDATA[
+	   	  	select tua.app_id,tua.app_row,tua.app_column,ta.app_name,ta.app_link,ta.app_height,ta.app_is_small
+			  from t_fs_user_app tua    
+		 left join t_fs_app ta on ta.app_id = tua.app_id
+			 where tua.user_id = ?
+		  order by tua.app_column,tua.app_row
+   	  ]]>
+	</sql>
+	
+	<sql id="query_user_role_apps" description="查询用户所属角色的所有应用">
+		<![CDATA[
+			select ta.app_id,ta.app_name,ta.app_desc
+   	  		  from t_fs_app_role tr 
+   	  	 left join t_fs_app ta on tr.app_id = ta.app_id
+   	  	     where tr.role_id in (select role_id from t_fs_user_role where user_id=?) 
+	  	       and ta.app_id not in(select app_id from t_fs_user_app where user_id=?)
+		]]>
+	</sql>
+	
+	<sql id="add_user_app" description="增加用户的应用">
+		<![CDATA[
+			insert into t_fs_user_app(user_id,app_id,app_row,app_column) values(?,?,1,1) 
+		]]>
+	</sql>
+	
+	<sql id="delete_user_app" description="增加用户的应用">
+		<![CDATA[
+			delete from t_fs_user_app where user_id = ? and app_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_search_dic_list" description="查询字典信息列表数据">
+		<![CDATA[
+			select dic_id,dic_name,create_date from t_fs_dictionary order by create_date
+		]]>
+	</sql>
+	
+	<sql id="sql_query_dic" description="根据字典编码查询字典信息">
+		<![CDATA[
+			select dic_id,dic_name from t_fs_dictionary where dic_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_insert_dic" description="新增字典信息">
+		<![CDATA[
+			insert into t_fs_dictionary(dic_id,dic_name,create_date) values(?,?,?)
+		]]>
+	</sql>
+	
+	<sql id="sql_update_dic" description="根据字典编码修改字典信息">
+		<![CDATA[
+			update t_fs_dictionary set dic_name = ? where dic_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_delete_dic" description="根据字典编码删除字典信息">
+		<![CDATA[
+			delete from t_fs_dictionary where dic_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_search_dictionary_values" description="根据字典编码查询字典值信息">
+		<![CDATA[
+			select dic_value_id,dic_value_label,dic_value_order from t_fs_dictionary_value where dic_id = ? order by dic_value_order
+		]]>
+	</sql>
+	
+	<sql id="sql_delete_dic_values" description="根据字典编码删除字典值信息">
+		<![CDATA[
+			delete from t_fs_dictionary_value where dic_id = ?	
+		]]>
+	</sql>
+	
+	<sql id="sql_insert_dic_values" description="批量增加同一字典的字典值数据">
+		<![CDATA[
+			insert into t_fs_dictionary_value(dic_id,dic_value_id,dic_value_label,dic_value_order)
+			     values(?,?,?,?)
+			
+		]]>
+	</sql>
+	
+	<sql id="sql_query_duty_users" description="查询固定职务下的所有用户">
+		<![CDATA[
+			select user_id,user_name from t_fs_user where duty_id = ? and is_on_job = '0' and is_deleted='0'
+		]]>
+	</sql>
+	
+	<sql id="sql_update_password" description="修改用户密码">
+		<![CDATA[
+			update t_fs_user set user_pswd = ? where user_id = ?
+		]]>
+	</sql>
+	
+	<sql id="sql_query_loginlogger_count" description="查询登录日志记录数">
+   	  <![CDATA[
+   	  		select count(0) from t_fs_login_logger
+   	  	   where 1=1
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_loginlogger_list" description="查询登录日志记录列表">
+   	  <![CDATA[
+   	  		select
+				tu.user_name user_id,
+				tl.last_login_time,
+				tl.login_ip,
+   	  			tl.id
+   	  		 from t_fs_login_logger tl
+   	  		 left join t_fs_user tu on tl.id = tu.user_id
+   	  		 where 1=1
+   	  		 order by tl.last_login_time desc
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_setter_count" description="查询系统设置记录数">
+   	  <![CDATA[
+   	  		select count(0) from t_fs_setter
+   	  	   where 1=1
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_setter_list" description="查询系统设置记录列表">
+   	  <![CDATA[
+   	  		select
+				setter_name,
+				setter_value,
+				setter_remark,
+   	  			id
+   	  		 from t_fs_setter 
+   	  		 where 1=1
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_exist_setter_name" description="判断设置的名称是否存在">
+	   <![CDATA[ 
+	    	select count(0) from t_fs_setter where id !=? and setter_name=?
+	    ]]> 
+	</sql>
+</root>

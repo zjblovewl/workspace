@@ -1,0 +1,23 @@
+{
+    "button": [
+        {
+            "name": "产品信息",
+            "type": "click",
+            "key": "101"
+        },
+		{
+            "name": "火情信息",
+	   		"type": "click",
+            "key": "201"
+        },
+		{
+            "name": "网页授权",
+	     	"sub_button":[
+             {	
+               "type":"view",
+               "name":"网页授权",
+               "url":"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx127797bfb713d1ee&redirect_uri=https%3A%2F%2Fcb3134a8.ngrok.io%2Ffc_improve%2Fcore%2FgetOpenUserInfoByWeb.htm&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect"
+             }
+        }
+    ]
+}

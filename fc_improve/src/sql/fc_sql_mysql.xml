@@ -1,0 +1,856 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<sql id="sql_query_addrbook_count" description="æ¥è¯¢éè®¯å½è®°å½æ°">
+   	  <![CDATA[
+   	  		select count(0) from t_fc_addrbook
+   	  	   where 1=1
+				and name like ?
+				and department like ?
+				and phone_num like ?
+   	  ]]>
+	</sql>
+
+	<sql id="sql_query_addrbook_list" description="æ¥è¯¢éè®¯å½è®°å½åè¡¨">
+   	  <![CDATA[
+   	  		select
+				name,
+				department,
+				phone_num,
+				town,
+				village,
+   	  			id
+   	  		 from t_fc_addrbook 
+   	  		 where 1=1
+				and name like ?
+				and department like ?
+				and phone_num like ?
+   	  ]]>
+	</sql>
+
+	<sql id="sql_query_notice_count" description="æ¥è¯¢éç¥å¬åè®°å½æ°">
+   	  <![CDATA[
+   	  		select count(0) from t_fc_notice_info
+   	  	   where 1=1
+				and title like ?
+   	  ]]>
+	</sql>
+
+	<sql id="sql_query_notice_list" description="æ¥è¯¢éç¥å¬åè®°å½åè¡¨">
+   	  <![CDATA[
+   	  		select
+				title,
+				pub_time,
+				author,
+   	  			id
+   	  		 from t_fc_notice_info 
+   	  		 where 1=1
+				and title like ?
+			order by pub_time desc
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_notice_count_mobile" description="æ¥è¯¢éç¥å¬åè®°å½æ°">
+   	  <![CDATA[
+   	  		select count(0) from t_fc_notice_info
+   	  	   where 1=1
+				and title like ? 
+				and relUser like ?
+   	  ]]>
+	</sql>
+
+	<sql id="sql_query_notice_list_mobile" description="æ¥è¯¢éç¥å¬åè®°å½åè¡¨">
+   	  <![CDATA[
+   	  		select
+				title,
+				pub_time,
+				author,
+   	  			id
+   	  		 from t_fc_notice_info 
+   	  		 where 1=1
+				and title like ?
+				and relUser like ?
+			order by pub_time desc
+   	  ]]>
+	</sql>
+
+	<sql id="sql_query_terminal_count" description="æ¥è¯¢ç¨æ·ç»ç«¯ä¿¡æ¯è®°å½æ°">
+   	  <![CDATA[
+   	  		select count(0) from t_fc_terminal_info
+   	  	   where 1=1
+   	  ]]>
+	</sql>
+
+	<sql id="sql_query_terminal_list" description="æ¥è¯¢ç¨æ·ç»ç«¯ä¿¡æ¯è®°å½åè¡¨">
+   	  <![CDATA[
+   	  		select
+				phone_name,
+				phone_version,
+				soft_version,
+				imsi,
+				imei,
+				login_name,
+				ownship,
+   	  			id
+   	  		 from t_fc_terminal_info 
+   	  		 where 1=1
+   	  ]]>
+	</sql>
+
+	<sql id="sql_query_sign_count" description="æ¥è¯¢ç­¾å°ç­¾éä¿¡æ¯è®°å½æ°">
+   	  <![CDATA[
+   	  		select count(0) from t_fc_sign_in_out t
+   	  		 left join t_fs_user tu on t.user_id = tu.user_id 
+   	  		 left join t_fs_dept td on tu.dept_id = td.dept_id
+   	  	   where 1=1
+				and tu.user_name like ?
+				and td.dept_name like ?
+				and t.sign_time between ? and ?
+				and (t.type = ? or '-1' = ?)
+   	  ]]>
+	</sql>
+
+	<sql id="sql_query_sign_list" description="æ¥è¯¢ç­¾å°ç­¾éä¿¡æ¯è®°å½åè¡¨">
+   	  <![CDATA[
+   	  		select
+				tu.user_name,
+				td.dept_name,
+				t.type,
+				t.address,
+				t.hand_address,
+				t.sign_time,
+   	  			t.id
+   	  		 from t_fc_sign_in_out t
+   	  		 left join t_fs_user tu on t.user_id = tu.user_id 
+   	  		 left join t_fs_dept td on tu.dept_id = td.dept_id
+   	  		 where 1=1
+				and tu.user_name like ?
+				and td.dept_name like ?
+				and t.sign_time between ? and ?
+				and (t.type = ? or '-1' = ?)
+			order by t.sign_time desc	
+   	  ]]>
+	</sql>
+	
+	<sql id="common_tree_getDeptUserTree" description="æ¥è¯¢ææé¨é¨äººåæ ">
+		<![CDATA[
+			  select t.dept_id as nid,
+			         t.dept_name as name,
+			         t.p_dept_id as npid,
+			         t.dept_name title,
+			         'true' as isParent
+			    from t_fs_dept t
+			  union all
+			  select t1.user_id as nid,
+			         t1.user_name as name,
+			         t1.dept_id as npid,
+			         t1.user_name title,
+			         'false' as isParent
+			    from t_fs_user t1
+			   where t1.dept_id in (select DISTINCT dept_id from t_fs_dept)
+		]]>
+	</sql>
+	<sql id="queryAddrWithCondition_byName" description="">
+		<![CDATA[
+        select name, department, phone_num, id
+          from t_fc_addrbook
+         where name = ?
+			and department = ?
+		]]>
+	</sql>
+	<sql id="queryDeptByPhotoNum" description="">
+		<![CDATA[
+			select
+				name,
+				department,
+				phone_num,
+   	  			id
+   	  		 from t_fc_addrbook where phone_num = ?
+		]]>
+	</sql>
+	<sql id="queryDeptByName" description="">
+		<![CDATA[
+			select dept_id deptId,
+			       dept_name deptName,
+			       dept_short_name deptShortName,
+			       dept_phone deptPhone,
+			       dept_fax deptFax,
+			       dept_address deptAddress,
+			       p_dept_id pDeptId,
+			       dept_leader deptLeader,
+			       dept_level deptLevel,
+			       dept_remark deptRemark
+			  from t_fs_dept
+			 where dept_name = ?
+		]]>
+	</sql>
+
+	<sql id="sql_query_work_count" description="æ¥è¯¢å·¥ä½è®°å½è®°å½æ°">
+   	  <![CDATA[
+   	  		select count(0) from t_fc_work tw
+   	  		 left join t_fs_user tu on tu.user_id = tw.recorder 
+   	  		 left join t_fs_dept td on tu.dept_id = td.dept_id
+   	  	   where 1=1
+   	  	   	and td.dept_name like ? 
+   	  	   	and tu.user_name like ? 
+   	  	   	and record_time between ? and ?
+   	  ]]>
+	</sql>
+
+	<sql id="sql_query_work_list" description="æ¥è¯¢å·¥ä½è®°å½è®°å½åè¡¨">
+   	  <![CDATA[
+   	  		select
+				tw.meeting,
+				tw.performance,
+				tw.recorder,
+				tw.record_time,
+				tw.record_address,
+				tw.record_images,
+   	  			tw.id,
+   	  			tu.user_name,
+   	  			td.dept_name
+   	  		 from t_fc_work  tw
+   	  		 left join t_fs_user tu on tu.user_id = tw.recorder 
+   	  		 left join t_fs_dept td on tu.dept_id = td.dept_id
+   	  	   where 1=1
+   	  	   	and td.dept_name like ? 
+   	  	   	and tu.user_name like ? 
+   	  	   	and tw.record_time between ? and ?
+   	  	   	 order by record_time desc
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_user_work_count" description="æ¥è¯¢ç¨æ·å·¥ä½è®°å½è®°å½æ°">
+   	  <![CDATA[
+   	  		select count(0) from t_fc_work
+   	  	   where 1=1 and recorder = ? 
+   	  ]]>
+	</sql>
+
+	<sql id="sql_query_user_work_list" description="æ¥è¯¢ç¨æ·å·¥ä½è®°å½è®°å½åè¡¨">
+   	  <![CDATA[
+   	  		select
+				*
+   	  		 from t_fc_work 
+   	  		 where 1=1 and recorder = ? 
+   	  		 order by record_time desc
+   	  ]]>
+	</sql>
+
+	<sql id="sql_query_thingreport_count" description="æ¥è¯¢äºä»¶ä¸æ¥è®°å½æ°">
+   	  <![CDATA[
+   	  		select
+				count(0)
+   	  		 from t_fc_thing_report tr
+   	  		 left join t_fs_user tu on tu.user_id = tr.reporter
+   	  		 left join t_fs_dept td on td.dept_id = tu.dept_id
+   	  		 where 1=1
+				and td.dept_name like ?
+				and tu.user_name like ?
+				and tr.appeal_result like ?
+				and report_time between ? and ?
+   	  ]]>
+	</sql>
+
+	<sql id="sql_query_thingreport_list" description="æ¥è¯¢äºä»¶ä¸æ¥è®°å½åè¡¨">
+   	  <![CDATA[
+   	  		select
+				tr.*,td.dept_name,tu.user_name
+   	  		 from t_fc_thing_report tr
+   	  		 left join t_fs_user tu on tu.user_id = tr.reporter
+   	  		 left join t_fs_dept td on td.dept_id = tu.dept_id
+   	  		 where 1=1
+				and td.dept_name like ?
+				and tu.user_name like ? 
+				and tr.appeal_result like ?
+				and report_time between ? and ?
+				order by report_time desc
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_company_info" description="">
+   	  <![CDATA[
+			select
+					td.dept_name,tu.*
+	   	  		 from t_fc_thing_report tr
+	   	  		 left join t_fs_user tu on tu.user_id = tr.reporter
+	   	  		 left join t_fs_dept td on td.dept_id = tu.dept_id
+			where tr.reporter = ?
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_user_thingreport_count" description="æ¥è¯¢ç¨æ·äºä»¶ä¸æ¥è®°å½æ°">
+   	  <![CDATA[
+   	  		select count(0) from t_fc_thing_report
+   	  	   where 1=1
+				and reporter = ?
+   	  ]]>
+	</sql>
+
+	<sql id="sql_query_user_thingreport_list" description="æ¥è¯¢ç¨æ·äºä»¶ä¸æ¥è®°å½åè¡¨">
+   	  <![CDATA[
+   	  		select
+				*
+   	  		 from t_fc_thing_report 
+   	  		 where 1=1
+				and reporter = ?
+			order by report_time desc
+   	  ]]>
+	</sql>
+	<sql id="sql_query_peoplething_count" description="æ¥è¯¢æ°çå®äºè®°å½æ°">
+   	  <![CDATA[
+   	  		select count(0) from t_fc_people_info ti
+   	  		 left join t_fs_user tu on ti.create_user = tu.user_id
+   	  		 left join t_fs_dept td on tu.dept_id = td.dept_id
+   	  	   where 1=1
+   	  	   and td.dept_name like ?
+   	  	   and tu.user_name like ?
+   	  	   and ti.create_date between ? and ?
+   	  	   and ti.town like ? 
+   	  	   and ti.village like ?
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_peoplething_list" description="æ¥è¯¢æ°çå®äºè®°å½åè¡¨">
+   	  <![CDATA[
+   	  		select
+				ti.*,tu.user_name,td.dept_name,tu.user_phone
+   	  		 from t_fc_people_info ti
+   	  		 left join t_fs_user tu on ti.create_user = tu.user_id
+   	  		 left join t_fs_dept td on tu.dept_id = td.dept_id
+   	  		 where 1=1
+   	  		 	and td.dept_name like ?
+   	  	   		and tu.user_name like ?
+   	  	   		and ti.create_date between ? and ? 
+   	  	   		and ti.town like ? 
+   	  	  		and ti.village like ?
+   	  		 order by ti.create_date desc
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_sign_things_reports_count" description="æ¥è¯¢æ°æ®ç»è®¡æ¥è¡¨">
+	    <![CDATA[
+		    select count(distinct t.id) from t_fc_sign_in_out t				
+				left join t_fs_user tu on t.user_id = tu.user_id
+				left join t_fs_dept td on tu.dept_id = td.dept_id
+				where t.type = 0 
+				and 
+				td.dept_name like ?
+				and 
+				tu.user_name like ?
+				and t.sign_time between ? and ?
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_sign_things_reports" description="æ¥è¯¢æ°æ®ç»è®¡æ¥è¡¨">
+	    <![CDATA[
+	           select t.id,t.sign_id,tu.user_name,t.sign_time,td.dept_name,tu.user_phone,tr.description,t.hand_address appealer_address
+		       from t_fc_sign_in_out t
+				left join t_fc_thing_report tr on t.id = tr.sign_id and tr.is_valid = '1'
+				left join t_fc_work tw on t.id = tw.sign_id  and tw.is_valid = '1'
+				left join t_fs_user tu on t.user_id = tu.user_id
+				left join t_fs_dept td on td.dept_id = tu.dept_id
+				where t.type = 0                 
+				and td.dept_name like ? 
+				and tu.user_name like ?  
+				and t.sign_time between ? and ?
+				order by t.sign_time desc 
+	    ]]>
+	</sql>
+	
+	<sql id="sql_export_sign_things_reports" description="æ¥è¯¢æ°æ®ç»è®¡å¯¼åºçæ¥è¡¨">
+	    <![CDATA[
+	    	 select tt.* from (
+	    	select  t.id in_id,ti.id out_id,td.dept_name,t.hand_address,tu.user_name,tu.user_phone,ti.sign_time out_sign_time,ti.address out_address,ti.img_path out_img_path,tw.meeting,tw.record_images,tr.appealer_name,tr.appealer_phone,tr.appealer_address,tr.description,tr.appeal_images,t.sign_time in_sign_time,t.address in_address,t.img_path in_img_path
+		       from t_fc_sign_in_out t
+				left join t_fc_thing_report tr on t.id = tr.sign_id
+				left join t_fc_work tw on t.id = tw.sign_id
+				left join t_fs_user tu on t.user_id = tu.user_id
+				left join t_fs_dept td on td.dept_id = tu.dept_id
+                left join t_fc_sign_in_out ti on t.id = ti.sign_id                
+				where t.type = 0 and tu.user_name like ?
+				 and td.dept_name like ?
+				and t.sign_time between ? and ?  
+				order by t.sign_time desc ) tt
+ 			group by tt.in_id
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_sign_things_report" description="æ ¹æ®ç¼ç æ¥è¯¢ç»è®¡æ¥è¡¨è¯¦æ">
+	    <![CDATA[
+		      select tso.address out_address,tso.sign_time out_sign_time,tso.img_path out_img_path,t.address in_address,t.hand_address in_hand_address,t.sign_time in_sign_time,t.img_path in_image_path,tr.*,tw.*,tu.* 
+		        from t_fc_sign_in_out t
+				left join t_fc_thing_report tr on t.id = tr.sign_id and tr.is_valid = '1'
+				left join t_fc_work tw on t.id = tw.sign_id and tw.is_valid = '1'
+				left join t_fs_user tu on t.user_id = tu.user_id
+                left join t_fc_sign_in_out tso on t.id  = tso.sign_id
+				where t.type = 0 and t.id = ?
+	    ]]>
+	</sql>
+	<sql id="sql_query_sms_count" description="æ¥è¯¢ç­ä¿¡ä¿¡æ¯è®°å½æ°">
+   	  <![CDATA[
+   	  		select count(0) from t_fc_sms
+   	  	   where 1=1
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_sms_list" description="æ¥è¯¢ç­ä¿¡ä¿¡æ¯è®°å½åè¡¨">
+   	  <![CDATA[
+   	  		select
+				send_users,
+				content,
+				create_user,
+				create_date,
+   	  			id
+   	  		 from t_fc_sms 
+   	  		 where 1=1
+   	  		 order by create_date desc
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_fire_new_list" description="æ¥è¯¢ç­ä¿¡ä¿¡æ¯è®°å½åè¡¨">
+   	  <![CDATA[
+   	  		select 
+				ID AS id
+			from t_fc_fire 
+			where 1=1
+			order by default_time desc LIMIT 1
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_update_user_position" description="æ´æ°ç¨æ·å½åä½ç½®">
+	    <![CDATA[
+	    	update t_fc_online_user set position = ?, update_date = ? where user_id = ?
+	    ]]>
+	</sql>
+	
+	<sql id="sql_insert_user_position" description="æ°å¢ç¨æ·å½åä½ç½®">
+	    <![CDATA[
+	    	insert into t_fc_online_user(user_id,position,update_date) values(?,?,?)
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_online_users" description="æ¥è¯¢ææå¨çº¿ç¨æ·">
+	    <![CDATA[
+	    	select tfu.user_name,tfu.user_phone,tu.position
+	    	from t_fc_online_user tu
+	    	left join t_fs_user tfu on tu.user_id = tfu.user_id
+	    	where TIMESTAMPDIFF(MINUTE,update_date,now())<=5  
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_user_areas" description="æ ¹æ®ç¨æ·ç¼ç æ¥è¯¢ç¨æ·æå¨åºå">
+	    <![CDATA[
+	    select ta.town,ta.village from t_fc_address_user tu
+			left join t_fc_address ta on ta.id = tu.address_id
+			where tu.user_id = ?
+	     ]]>
+	</sql>
+	
+	<sql id="sql_delete_area_users"  description="å é¤åºåç¨æ·">
+	    <![CDATA[
+	    	delete from t_fc_address_user where address_id = ?
+	    ]]>
+	</sql>
+	
+		<sql id="sql_insert_area_users" description="æ°å¢åºåç¨æ·">
+	    <![CDATA[
+	    	insert into t_fc_address_user(address_id,user_id) values(?,?)
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_user_names_by_address_id" description="æ¥è¯¢ç¨æ·ä¿¡æ¯">
+	    <![CDATA[
+	    select user_name,user_phone from t_fs_user where user_id in (select user_id from t_fc_address_user where address_id = ?)
+	    ]]> 
+	</sql>
+	
+	<sql id="sql_query_town_and_villages_count" description="æ¥è¯¢ææçä¹¡éãç¤¾åºä¿¡æ¯">
+	    <![CDATA[
+	    select count(0) from t_fc_address where town like ? and village like ?
+	     ]]> 
+	</sql>
+	
+	<sql id="sql_query_town_and_villages" description="æ¥è¯¢ææçä¹¡éãç¤¾åºä¿¡æ¯">
+	    <![CDATA[
+	    select * from t_fc_address where town like ? and village like ?
+	     ]]> 
+	</sql>
+	
+	<sql id="sql_query_thingreport_by_slsbid" description="">
+		<![CDATA[
+			select * from t_fc_thing_report where slsb_id = ?
+		]]> 
+	</sql>
+	<sql id="sql_delete_thingreport_by_slsbid" description="">
+		<![CDATA[
+			delete from t_fc_thing_report where slsb_id = ?
+		]]> 
+	</sql>
+	
+	<sql id="sql_insert_notice_users" description="ä¿å­å¬åçç¸å³ç¨æ·">
+	    <![CDATA[
+	    	insert into t_fc_notice_user(id,user_id) values(?,?)
+	    ]]> 
+	</sql>
+	
+	<sql id="sql_delete_notice_users" description="å é¤ç¸å³çå¬å">
+	    <![CDATA[
+	    	delete from t_fc_notice_user where user_id = ?
+	    ]]> 
+	</sql>
+	
+	<sql id="sql_delete_wx_users" description="取消订阅后删除用户">
+	    <![CDATA[
+	    	delete from t_fc_wx where openId = '?'
+	    ]]> 
+	</sql>
+	
+	<sql id="sql_query_user_notices" description="æ¥è¯¢ç¨æ·æªè¯»çå¬å">
+	    	<![CDATA[
+	    		select id from t_fc_notice_user where user_id = ?
+	    	]]> 
+	</sql>
+	
+	<sql id="sql_update_thing_report_is_valid" description="æ´æ°äºä»¶ä¸æ¥ç¶æ">
+	    <![CDATA[
+	    	update t_fc_thing_report set is_valid = '0' where sign_id = ? 
+	    ]]> 
+	</sql>
+	
+	<sql id="sql_update_work_is_valid" description="æ´æ°å·¥ä½è®°å½ç¶æ">
+	    <![CDATA[
+	    	update t_fc_work set is_valid = '0' where sign_id = ? 
+	    ]]> 
+	</sql>
+	
+	<sql id="sql_query_indeximage_count" description="æ¥è¯¢é¦é¡µå¾çè®°å½æ°">
+   	  <![CDATA[
+   	  		select count(0) from t_fc_index_image
+   	  	   where 1=1
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_indeximage_list" description="æ¥è¯¢é¦é¡µå¾çè®°å½åè¡¨">
+   	  <![CDATA[
+   	  		select
+				create_date,
+				create_user,
+   	  			id
+   	  		 from t_fc_index_image 
+   	  		 where 1=1
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_address_count" description="æ¥è¯¢èç»äººç®¡çè®°å½æ°">
+   	  <![CDATA[
+   	  		select count(0) from t_fc_address
+   	  	   where 1=1
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_address_list" description="æ¥è¯¢èç»äººç®¡çè®°å½åè¡¨">
+   	  <![CDATA[
+   	  		select
+				town,
+				village,
+   	  			id
+   	  		 from t_fc_address 
+   	  		 where 1=1
+   	  ]]>
+	</sql>
+	
+	<sql id="sql_query_goodperson_count" description="æ¥è¯¢æ±¶åå¥½äººçéåæ°é">
+	    <![CDATA[
+	    	select count(1) from t_fc_good_person 
+	    	where 1=1
+	    	and type=1 
+	    	and title like ?
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_goodperson_list" description="æ¥è¯¢æ±¶åå¥½äººçéå">
+	    <![CDATA[
+	    	select
+				title,
+				create_time,
+				create_user,
+				id
+   	  		 from t_fc_good_person 
+   	  		 where 1=1
+   	  		 and type=1
+			 and title like ?
+			 order by order_time desc
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_goodperson_count_mobile" description="æ¥è¯¢æ±¶åå¥½äººçéåæ°é">
+	    <![CDATA[
+	    	select count(1) from t_fc_good_person 
+	    	where 1=1
+	    	and type=1 
+	    	and title like ?
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_goodperson_list_mobile" description="æ¥è¯¢æ±¶åå¥½äººçéå">
+	    <![CDATA[
+	    	select bean.* from t_fc_good_person bean where 1=1 order by bean.order_time desc limit 1
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_map_count" description="æ¥è¯¢ä½ç½®éåæ°é">
+	    <![CDATA[
+	    	select count(1) from t_fc_fire 
+	    	where 1=1
+	    	and postion like ?
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_map_list" description="æ¥è¯¢ä½ç½®éå">
+	    <![CDATA[
+	    	select
+				postion,
+				longitude,
+				latitude,
+				fire,
+				fire_describe,
+				create_time,
+				default_time,
+				create_user,
+				id
+   	  		 from t_fc_fire 
+   	  		 where 1=1
+			 and postion like ?
+			 order by create_time desc
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_fourvirtues_count" description="æ¥è¯¢åå¾·æ¦çéåæ°é">
+	    <![CDATA[
+	    	select count(1) from t_fc_four_virtues 
+	    	where 1=1
+	    	and type=1 
+	    	and title like ?
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_fourvirtues_list" description="æ¥è¯¢åå¾·æ¦çéå">
+	    <![CDATA[
+	    	select
+				title,
+				create_time,
+				create_user,
+				id
+   	  		 from t_fc_four_virtues 
+   	  		 where 1=1
+   	  		 and type=1
+			 and title like ?
+			 order by order_time desc
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_fourvirtues_list_mobile" description="æ¥è¯¢åå¾·æ¦çéå">
+	    <![CDATA[
+	    	select bean.* from t_fc_four_virtues bean where 1=1 order by bean.order_time desc limit 1
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_wx_list" description="æ¥è¯¢å¾®ä¿¡åè¡¨">
+	    <![CDATA[
+	    	SELECT 
+				partyid as partyId,
+				name as name,
+			  appid as appId,
+			  appsecret as appSecret,
+			  token as token
+			FROM `t_fc_wx`
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_wx_user_list" description="æ¥è¯¢å¾®ä¿¡åè¡¨">
+	    <![CDATA[
+	    	select id,partyId,openId from t_fc_wx_user where partyId = 1
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_goodthings_count" description="æ¥è¯¢å¡äººå¥½äºçéåæ°é">
+	    <![CDATA[
+	    	select count(1) from t_fc_good_things 
+	    	where 1=1
+	    	and type=1 
+	    	and title like ?
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_goodthings_list" description="æ¥è¯¢å¡äººå¥½äºçéå">
+	    <![CDATA[
+	    	select
+				title,
+				create_time,
+				create_user,
+				id
+   	  		 from t_fc_good_things 
+   	  		 where 1=1
+   	  		 and type=1
+			 and title like ?
+			 order by order_time desc
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_goodthings_list_query" description="æ¥è¯¢å¡äººå¥½äºçéå">
+	    <![CDATA[
+	    	select bean.* from t_fc_good_things bean where 1=1 order by bean.order_time desc limit 1
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_volunteerservice_count" description="æ¥è¯¢å¿æ¿æå¡çéåæ°é">
+	    <![CDATA[
+	    	select count(1) from t_fc_volunteer_service 
+	    	where 1=1
+	    	and type=1 
+	    	and title like ?
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_volunteerservice_list" description="æ¥è¯¢å¿æ¿æå¡çéå">
+	    <![CDATA[
+	    	select
+				title,
+				create_time,
+				create_user,
+				id
+   	  		 from t_fc_volunteer_service 
+   	  		 where 1=1
+   	  		 and type=1
+			 and title like ?
+			 order by order_time desc
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_volunteerservice_list_mobile" description="æ¥è¯¢å¿æ¿æå¡çéå">
+	    <![CDATA[
+	    	select bean.* from t_fc_volunteer_service bean where 1=1 order by bean.order_time desc limit 1
+	    ]]>
+	</sql>
+	
+	
+	
+	<sql id="sql_query_beautifulcountry_count" description="æ¥è¯¢ç¾ä¸½ä¹¡æçéåæ°é">
+	    <![CDATA[
+	    	select count(1) from t_fc_beautiful_country 
+	    	where 1=1
+	    	and type=1 
+	    	and title like ?
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_beautifulcountry_list" description="æ¥è¯¢ç¾ä¸½ä¹¡æéå">
+	    <![CDATA[
+	    	select
+				title,
+				create_time,
+				create_user,
+				id
+   	  		 from t_fc_beautiful_country 
+   	  		 where 1=1
+   	  		 and type=1
+			 and title like ?
+			 order by order_time desc
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_beautifulcountry_list_mobile" description="æ¥è¯¢ææºç«¯ç¾ä¸½ä¹¡æéå">
+	    <![CDATA[
+	    	select
+				title,
+				create_time,
+				create_user,
+				label,
+				image_path,
+				id
+   	  		 from t_fc_beautiful_country 
+   	  		 where 1=1
+   	  		 and type=1
+			 and title like ?
+			 order by create_time desc
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_classroom_count" description="æ¥è¯¢éäºå±±å¤§è®²å çéåæ°é">
+	    <![CDATA[
+	    	select count(1) from t_fc_class_room 
+	    	where 1=1
+	    	and type=1 
+	    	and title like ?
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_classroom_list" description="æ¥è¯¢éäºå±±å¤§è®²å éå">
+	    <![CDATA[
+	    	select
+				title,
+				create_time,
+				create_user,
+				id
+   	  		 from t_fc_class_room 
+   	  		 where 1=1
+   	  		 and type=1
+			 and title like ?
+			 order by order_time desc
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_classroom_list_mobile" description="æ¥è¯¢éäºå±±å¤§è®²å éå">
+	    <![CDATA[
+	    	select
+				title,
+				create_time,
+				create_user,
+				id
+   	  		 from t_fc_class_room 
+   	  		 where 1=1
+   	  		 and type=1
+			 and title like ?
+			 order by create_time desc
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_impresssouth_count" description="æ¥è¯¢å°è±¡æ±¶åçéåæ°é">
+	    <![CDATA[
+	    	select count(1) from t_fc_impress_south 
+	    	where 1=1
+	    	and type=1 
+	    	and title like ?
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_impresssouth_list" description="æ¥è¯¢å°è±¡æ±¶åéå">
+	    <![CDATA[
+	    	select
+				title,
+				create_time,
+				create_user,
+				id
+   	  		 from t_fc_impress_south 
+   	  		 where 1=1
+   	  		 and type=1
+			 and title like ?
+			 order by order_time desc
+	    ]]>
+	</sql>
+	
+	<sql id="sql_query_impresssouth_list_mobile" description="æ¥è¯¢å°è±¡æ±¶åéå">
+	    <![CDATA[
+	    	select
+				title,
+				create_time,
+				create_user,
+				id
+   	  		 from t_fc_impress_south 
+   	  		 where 1=1
+   	  		 and type=1
+			 and title like ?
+			 order by create_time desc
+	    ]]>
+	</sql>
+</root>
