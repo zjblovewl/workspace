@@ -21,7 +21,11 @@ git文件夹上传步骤
 输入用户名 :zjblovewl
 输入密码 :www..1994 至此提交成功
 
-参考连接：http://www.cnblogs.com/eedc/p/6168430.html
+参考连接：
+http://www.cnblogs.com/eedc/p/6168430.html
+http://blog.csdn.net/qq_24489717/article/details/52556072
+
+
 $ git add HttpClient.rar
 
 $ git commit -m "20171019"
