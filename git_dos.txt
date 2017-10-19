@@ -1,0 +1,35 @@
+git文件夹上传步骤
+账户名 zjblovewl@sina.com (zjblovewl : username) (www..1994:pwd)
+
+进入到要上传的目录 然后用git init 初始化一下
+
+第二步 git add .（添加到暂存区里面去）
+
+第三步 git commit -m '第一次提交' (提交)
+
+第四步 $ git remote add origin https://github.com/zjblovewl/workspace.git
+
+若报origin已存在 执行 git remote rm origin
+
+第五步 若项目第一次上传，则不需要，若存在，在需要对比同步，否则后续不能提交
+       git pull --rebase origin master （新的分支，本地不存在,可以 git branch work）
+	   
+第六步 git push -u origin master
+
+	   git push -f若出现不一致，则强制推送，覆盖远程
+
+输入用户名 :zjblovewl
+输入密码 :www..1994 至此提交成功
+
+参考连接：http://www.cnblogs.com/eedc/p/6168430.html
+$ git add HttpClient.rar
+
+$ git commit -m "20171019"
+
+$ git remote add httpclient git@github.com:zjblovewl/workspace.git
+
+$ git push -u httpclient master
+
+
+
+git@github.com:zjblovewl/practise.git
