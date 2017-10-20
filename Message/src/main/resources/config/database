@@ -1,0 +1,14 @@
+create database messagedb;
+
+CREATE TABLE `message` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(300) DEFAULT NULL,
+  `phone` varchar(11) NOT NULL,
+  `content` varchar(1000) NOT NULL,
+  `email` varchar(300) DEFAULT NULL,
+  `qq` varchar(300) DEFAULT NULL,
+  `wechat` varchar(300) DEFAULT NULL,
+  `addtime` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+

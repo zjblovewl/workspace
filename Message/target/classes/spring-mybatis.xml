@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"  
+    xmlns:context="http://www.springframework.org/schema/context"  
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:util="http://www.springframework.org/schema/util"  
+    xmlns:mvc="http://www.springframework.org/schema/mvc"  
+    xmlns:cache="http://www.springframework.org/schema/cache"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans    
+                        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd    
+                        http://www.springframework.org/schema/context    
+                        http://www.springframework.org/schema/context/spring-context-3.1.xsd    
+                        http://www.springframework.org/schema/mvc    
+                        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+                        http://www.springframework.org/schema/util 
+				        http://www.springframework.org/schema/util/spring-util.xsd 
+				        http://www.springframework.org/schema/tx   
+				        http://www.springframework.org/schema/tx/spring-tx.xsd
+				        http://www.springframework.org/schema/cache
+          				http://www.springframework.org/schema/cache/spring-cache.xsd"> 
+                        
+    <!-- 自动扫描 -->
+    <context:component-scan base-package="cn.linkage">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    
+    <!-- 创建数据源 -->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="#{appPropsBaseJdbc['jdbc.driver']}" />  
+        <property name="url" value="#{appPropsBaseJdbc['jdbc.url']}" />  
+        <property name="username" value="#{appPropsBaseJdbc['jdbc.username']}" />  
+        <property name="password" value="#{appPropsBaseJdbc['jdbc.password']}" />  
+        <!-- 初始化连接大小 -->  
+        <property name="initialSize" value="#{appPropsBaseJdbc['jdbc.initialSize']}"></property>  
+        <!-- 连接池最大数量 -->  
+        <property name="maxActive" value="#{appPropsBaseJdbc['jdbc.maxActive']}"></property>  
+        <!-- 连接池最大空闲 -->  
+        <property name="maxIdle" value="#{appPropsBaseJdbc['jdbc.maxIdle']}"></property>  
+        <!-- 连接池最小空闲 -->  
+        <property name="minIdle" value="#{appPropsBaseJdbc['jdbc.minIdle']}"></property>  
+        <!-- 获取连接最大等待时间 -->  
+        <property name="maxWait" value="#{appPropsBaseJdbc['jdbc.maxWait']}"></property> 
+    </bean>
+    
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="mapperLocations" value="classpath:cn/linkage/mapper/*.xml"></property>
+    </bean>
+    
+    <!-- DAO接口所在包名，Spring会自动查找其下的类 -->  
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
+        <property name="basePackage" value="cn.linkage.dao" />  
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>  
+    </bean>  
+  
+    <!-- (事务管理)transaction manager, use JtaTransactionManager for global tx -->  
+    <bean id="transactionManager"  
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">  
+        <property name="dataSource" ref="dataSource" />  
+    </bean>  
+    
+    <!-- 注解方式配置事物 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+	<!-- redis缓存配置 -->
+	<!-- jedis pool配置 -->
+	<bean id="baseJedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxTotal" value="#{appPropsBaseRedisConf['redis.maxTotal']}" />
+		<property name="maxIdle" value="#{appPropsBaseRedisConf['redis.maxIdle']}" />
+		<property name="minIdle" value="#{appPropsBaseRedisConf['redis.minIdle']}" />
+		<property name="testOnBorrow" value="#{appPropsBaseRedisConf['redis.testOnBorrow']}" />
+	</bean>
+	
+	<!-- spring data redis 配置 -->
+	<bean id="baseJedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+		<property name="usePool" value="true"></property>
+		<property name="hostName" value="#{appPropsBaseRedisConf['redis.host']}" />
+		<property name="port" value="#{appPropsBaseRedisConf['redis.port']}" />
+		<property name="password" value="#{appPropsBaseRedisConf['redis.pass']}" />
+		<property name="timeout" value="#{appPropsBaseRedisConf['redis.timeout']}" />
+		<property name="database" value="#{appPropsBaseRedisConf['redis.default.db']}"></property>
+		<constructor-arg index="0" ref="baseJedisPoolConfig" />
+	</bean>
+ 
+ 	<!-- spring data redis template配置 -->
+	<bean id="baseRedisTemplate" class="org.springframework.data.redis.core.RedisTemplate">  
+        <property name="connectionFactory" ref="baseJedisConnectionFactory" />
+        <property name="keySerializer">
+        	<bean class="org.springframework.data.redis.serializer.StringRedisSerializer"></bean>
+        </property>
+    </bean>
+    
+	<bean id="cacheManager" class="org.springframework.data.redis.cache.RedisCacheManager">  
+        <constructor-arg name="redisOperations" ref="baseRedisTemplate" />
+        <!-- 默认有效期1h -->
+        <property name="defaultExpiration" value="3600"/>
+    </bean>  
+    
+    <cache:annotation-driven cache-manager="cacheManager" proxy-target-class="true"/>
+	
+	<!-- 本地开发环境 -->
+	<beans profile="develop">
+		<!-- 配置加载项 -->
+		<util:properties id="appPropsBaseConstant" location="classpath:config/base/dev/constant.properties" />
+		<util:properties id="appPropsBaseJdbc" location="classpath:config/base/dev/jdbc.properties" />
+		<util:properties id="appPropsBaseRedisConf" location="classpath:config/base/dev/redis-dev.properties" />
+		
+	</beans>
+	
+	<!-- 测试环境 -->
+	<beans profile="test">
+		<!-- 配置加载项 -->
+		<util:properties id="appPropsBaseConstant" location="classpath:config/base/test/constant.properties" />
+		<util:properties id="appPropsBaseJdbc" location="classpath:config/base/test/jdbc.properties" />
+		<util:properties id="appPropsBaseRedisConf" location="classpath:config/base/test/redis-test.properties" />
+	</beans>
+</beans>
+    
+    	
