@@ -2,10 +2,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cn.jack</groupId>
-	<artifactId>weixin</artifactId>
+	<artifactId>Message</artifactId>
 	<packaging>war</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>weixin</name>
+	<name>Message</name>
 	<url>http://maven.apache.org</url>
 
 	<!-- 项目使用jar包版本 Spring 4.0.2 RELEASE Spring MVC 4.0.2 RELEASE MyBatis 3.2.6 -->
@@ -246,16 +246,4 @@
 		</dependency>
 
 	</dependencies>
-	
-	<build>
-	    <plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-compiler-plugin</artifactId>
-			<version>3.0</version>
-			<configuration>
-				<source>1.7</source>
-				<target>1.7</target>
-			</configuration>
-		</plugin>
-	</build>
 </project>
