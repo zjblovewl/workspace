@@ -18,7 +18,7 @@
 <script type="text/javascript" src="js/easyloader.js"></script>
 </head>
 
-<body style="background: url('images/login_bg.jpg');">
+<body style="background: url('images/loginBg.png');">
 <div id="loginWin" class="easyui-window" title="欢迎使用<%=CacheFactory.getInstance( ).getSetter( "system.name" ) %>" data-options="width:390,height:188" style="width:350px;height:188px;padding:5px;"
    minimizable="false" maximizable="false" resizable="false" collapsible="false" draggable="false" closable="false">
     <div class="easyui-layout" fit="true">

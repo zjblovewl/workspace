@@ -12,9 +12,10 @@
 <base href="<%=PageUtil.getBasePath(request) %>" />
 <link rel="stylesheet" type="text/css" href="css/login-black.css"/>
 <script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script type="text/javascript">alert('aaa')</script>
 <style type="text/css">
 body{
-	background:url('images/login-black-bg.png');
+	background:url('images/loginBg.png');
 	font-family:'微软雅黑';
 	font-size:12px;
 	color:#333;
